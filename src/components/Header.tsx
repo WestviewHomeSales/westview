@@ -1,11 +1,35 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Menu, X } from 'lucide-react';
 
 export const Header: React.FC = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const location = useLocation();
+  const menuRef = useRef<HTMLDivElement>(null);
 
+  // Close menu when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
+        setIsMenuOpen(false);
+      }
+    };
+
+    if (isMenuOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+      document.addEventListener('touchstart', handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener('touchstart', handleClickOutside);
+    };
+  }, [isMenuOpen]);
+
+  // Close menu when route changes
+  useEffect(() => {
+    setIsMenuOpen(false);
+  }, [location.pathname]);
   const handleLogoClick = (e: React.MouseEvent) => {
     // If we're already on the homepage, scroll to top instead of navigating
     if (location.pathname === '/') {
@@ -20,7 +44,7 @@ export const Header: React.FC = () => {
   };
 
   return (
-    <header className="border-b border-gray-200 bg-white sticky top-0 z-50 transition-shadow duration-300">
+    <header className="border-b border-gray-200 bg-white sticky top-0 z-50 transition-shadow duration-300" ref={menuRef}>
       <div className="container mx-auto px-4 py-3">
         <div className="flex justify-between items-center">
           <div className="flex items-center">
@@ -59,19 +83,19 @@ export const Header: React.FC = () => {
 
         {isMenuOpen && (
           <nav className="md:hidden py-4 flex flex-col gap-4 text-sm border-t border-gray-100 mt-3">
-            <Link to="/" className={getLinkClass('/')}>
+            <Link to="/" className={getLinkClass('/')} onClick={() => setIsMenuOpen(false)}>
               Current Listings
             </Link>
-            <Link to="/sold" className={getLinkClass('/sold')}>
+            <Link to="/sold" className={getLinkClass('/sold')} onClick={() => setIsMenuOpen(false)}>
               Sold
             </Link>
-            <Link to="/floor-plans" className={getLinkClass('/floor-plans')}>
+            <Link to="/floor-plans" className={getLinkClass('/floor-plans')} onClick={() => setIsMenuOpen(false)}>
               Floor Plans
             </Link>
-            <Link to="/useful-info" className={getLinkClass('/useful-info')}>
+            <Link to="/useful-info" className={getLinkClass('/useful-info')} onClick={() => setIsMenuOpen(false)}>
               Useful Info
             </Link>
-            <Link to="/contact" className={getLinkClass('/contact')}>
+            <Link to="/contact" className={getLinkClass('/contact')} onClick={() => setIsMenuOpen(false)}>
               Contact
             </Link>
           </nav>
